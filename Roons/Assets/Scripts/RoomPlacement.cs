@@ -8,59 +8,47 @@ public class RoomPlacement : MonoBehaviour
     public GameObject room;
     public GameObject door;
 
-    public List<GameObject> openDoors = new List<GameObject>();
-    public List<GameObject> closedDoors = new List<GameObject>();
+    public List<GameObject> openRooms = new List<GameObject>();
     public List<GameObject> rooms = new List<GameObject>();
 
-    float width, height;
+    public float width, height;
     // Start is called before the first frame update
     void Start()
     {
+        
         GameObject start = GameObject.Find("Start");
         rooms.Add(start);
+        openRooms.Add(start);
         width = start.GetComponent<SpriteRenderer>().bounds.size.x;
         height = start.GetComponent<SpriteRenderer>().bounds.size.y;
 
-        openDoors.Add(GameObject.Instantiate(door,new Vector3(width/2f, 0,-1),Quaternion.identity));
-        openDoors[0].GetComponent<DoorControll>().doorSide = 1;
-        openDoors.Add(GameObject.Instantiate(door,new Vector3(-width/2f, 0,-1),Quaternion.identity));
-        openDoors[1].GetComponent<DoorControll>().doorSide = 3;
-        openDoors.Add(GameObject.Instantiate(door,new Vector3(0, height/2f,-1),Quaternion.identity));
-        openDoors[2].GetComponent<DoorControll>().doorSide = 0;
-        openDoors.Add(GameObject.Instantiate(door,new Vector3(0, -height/2f,-1),Quaternion.identity));
-        openDoors[3].GetComponent<DoorControll>().doorSide = 2;
-
-        while(openDoors.Count > 0 && rooms.Count < roomCount)
+        for(int i =0; i<4; i++)
         {
-            GameObject currentDoor = openDoors[0];
-            Vector3 placement = Vector3.zero;
-            switch(currentDoor.GetComponent<DoorControll>().doorSide)
-            {
-                case 1:
-                    placement = new Vector3(width, 0,0);
-                    //currentDoor.GetComponent<DoorControll>().doorSide = 3;
-                    break;
-                case 3:
-                    placement = new Vector3(-width, 0,0);
-                    //currentDoor.GetComponent<DoorControll>().doorSide = 1;
-                    break;
-                case 0:
-                    placement = new Vector3(0, height,0);
-                    //currentDoor.GetComponent<DoorControll>().doorSide = 2;
-                    break;
-                case 2:
-                    placement = new Vector3(0, -height,0);
-                    //currentDoor.GetComponent<DoorControll>().doorSide = 0;
-                    break;
-                default:
-                    break;
-            }
-            rooms.Add(GameObject.Instantiate(room,placement, Quaternion.identity));
-            //Debug.Log()
-            SpawnDoors(currentDoor.GetComponent<DoorControll>().doorSide, placement);
-            closedDoors.Add(currentDoor);
-            openDoors.Remove(currentDoor);
+            start.GetComponent<RoomControl>().doors.Add(i);
+            SpawnDoors(i, start.GetComponent<RoomControl>());
+            openRooms.Remove(start);
         }
+        
+        while (rooms.Count < roomCount && openRooms.Count > 0)
+        {
+            RoomControl currentRoom = openRooms[0].GetComponent<RoomControl>();
+            int fiftyFifty = Random.Range(0, 2);
+            int num = Random.Range(fiftyFifty, 4);
+
+            for(int i =0; i < num; i++)
+            {
+                int place = Random.Range(0, 4);
+                while(currentRoom.doors.Contains(place))
+                {
+                    place = Random.Range(0, 4);
+                }
+                SpawnDoors(place, currentRoom);
+                currentRoom.doors.Add(place);
+            }
+
+            openRooms.Remove(currentRoom.gameObject);
+        }
+        
     }
 
     // Update is called once per frame
@@ -69,40 +57,74 @@ public class RoomPlacement : MonoBehaviour
         
     }
 
-    void SpawnDoors(int dir1, Vector3 roomPlace)
+    void SpawnDoors(int dir, RoomControl currentRoom)
     {
-        List<int> dirs = new List<int>(dir1);
-        int num = Random.Range(0,4);
-        //Debug.Log(num);
         Vector3 placement = Vector3.zero;
-        for(int i =0; i<num; i++)
+        int newDir = dir;
+        switch (dir)
         {
-            int side = Random.Range(0,4);
-            while(dirs.Contains(side))
+            case 1:
+                placement = new Vector3(1, 0, 0);
+                newDir = 3;
+                //currentDoor.GetComponent<DoorControll>().doorSide = 3;
+                break;
+            case 3:
+                placement = new Vector3(-1, 0, 0);
+                newDir = 1;
+                //currentDoor.GetComponent<DoorControll>().doorSide = 1;
+                break;
+            case 0:
+                placement = new Vector3(0, 1, 0);
+                newDir = 2;
+                //currentDoor.GetComponent<DoorControll>().doorSide = 2;
+                break;
+            case 2:
+                placement = new Vector3(0, -1, 0);
+                newDir = 0;
+                //currentDoor.GetComponent<DoorControll>().doorSide = 0;
+                break;
+            default:
+                break;
+        }
+
+        GameObject newDoor = GameObject.Instantiate(door, currentRoom.transform.position + new Vector3(width * placement.x * .5f, height * placement.y * .5f, placement.z), Quaternion.identity);
+
+        RaycastHit2D raycast = Physics2D.CircleCast(currentRoom.transform.position + new Vector3(width * placement.x, height * placement.y, placement.z), 0.5f, Vector3.zero);
+        if(!raycast || !raycast.collider.gameObject.GetComponent<RoomControl>())
+        {
+            GameObject newRoom = GameObject.Instantiate(room, currentRoom.transform.position + new Vector3(width * placement.x, height * placement.y, placement.z), Quaternion.identity);
+            newRoom.GetComponent<RoomControl>().doors.Add(newDir);
+            openRooms.Add(newRoom); rooms.Add(newRoom);
+        }
+        else
+        {
+            Debug.Log("Already a room there dumbo :)");
+            raycast.collider.gameObject.GetComponent<RoomControl>().doors.Add(newDir);
+        }
+    }
+
+    public void AddRooms(GameObject closeRoom)
+    {
+        if(openRooms.Contains(closeRoom))
+        {
+            RoomControl currentRoom = openRooms[0].GetComponent<RoomControl>();
+            int num = Random.Range(0, 4);
+
+            for (int i = 0; i < num; i++)
             {
-                side = Random.Range(0,4);
+                int place = Random.Range(0, 4);
+                while (currentRoom.doors.Contains(place))
+                {
+                    place = Random.Range(0, 4);
+                }
+                SpawnDoors(place, currentRoom);
             }
-            switch(side)
-            {
-                case 1:
-                    placement = new Vector3(width/2, 0,-1);
-                    break;
-                case 3:
-                    placement = new Vector3(-width/2, 0,-1);
-                    break;
-                case 0:
-                    placement = new Vector3(0, height/2,-1);
-                    break;
-                case 2:
-                    placement = new Vector3(0, -height/2,-1);
-                    break;
-                default:
-                    break;
-            }
-            GameObject newDoor = GameObject.Instantiate(door,roomPlace+placement,Quaternion.identity);
-            openDoors.Add(newDoor);
-            newDoor.GetComponent<DoorControll>().doorSide = side;
-            dirs.Add(side);
+
+            openRooms.Remove(currentRoom.gameObject);
+        }
+        else
+        {
+            Debug.LogError("Room already has attached rooms :)");
         }
     }
 }
