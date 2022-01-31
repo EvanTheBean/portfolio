@@ -103,11 +103,11 @@ public class RoomPlacement : MonoBehaviour
         }
     }
 
-    public void AddRooms(GameObject closeRoom)
+    public void AddRooms(GameObject nearRoom)
     {
-        if(openRooms.Contains(closeRoom))
+        if(openRooms.Contains(nearRoom))
         {
-            RoomControl currentRoom = openRooms[0].GetComponent<RoomControl>();
+            RoomControl currentRoom = nearRoom.GetComponent<RoomControl>();
             int num = Random.Range(0, 4);
 
             for (int i = 0; i < num; i++)

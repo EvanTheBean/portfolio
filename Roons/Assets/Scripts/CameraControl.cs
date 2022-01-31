@@ -58,8 +58,18 @@ public class CameraControl : MonoBehaviour
             }
 
             transform.position = placePos;
-            Debug.Log(player.transform.position + " " + roundPlacePos + " " + placePos);
-
+            //Debug.Log(player.transform.position + " " + roundPlacePos + " " + placePos);
+            int mask = 2;
+            RaycastHit2D raycast = Physics2D.Raycast(transform.position - new Vector3(0,0,transform.position.z), 0.5f, Vector3.zero, mask);
+            if(raycast)
+            {
+                Debug.Log("i hit a thing " + raycast.collider.gameObject.name);
+                if(raycast.collider.gameObject.GetComponent<RoomControl>())
+                {
+                    Debug.Log("adding rooms????");
+                    rp.AddRooms(raycast.collider.gameObject);
+                }
+            }
             player.transform.hasChanged = false;
         }
     }
