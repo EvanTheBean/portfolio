@@ -6,10 +6,12 @@ public class PlayerMovement : MonoBehaviour
 {
     float horz, vert;
     public float speed;
+
+    Rigidbody2D rb;
     // Start is called before the first frame update
     void Start()
     {
-        
+        rb = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
@@ -20,7 +22,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        transform.position += new Vector3(horz * speed, vert * speed, 0);
+        rb.velocity = new Vector3(horz * speed, vert * speed, 0);
+        //transform.position += new Vector3(horz * speed, vert * speed, 0);
     }
 
     void GetInput()
