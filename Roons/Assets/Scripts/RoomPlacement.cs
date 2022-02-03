@@ -111,8 +111,29 @@ public class RoomPlacement : MonoBehaviour
         }
         else
         {
+            if(raycast.collider.gameObject.GetComponent<RoomControl>())
+            {
+                if(openRooms.Contains(raycast.collider.gameObject))
+                {
+                    GameObject newDoor = GameObject.Instantiate(door, currentRoom.transform.position + new Vector3(width * placement.x * .5f, height * placement.y * .5f, -1), Quaternion.identity);
+                    //GameObject newRoom = GameObject.Instantiate(room, currentRoom.transform.position + new Vector3(width * placement.x, height * placement.y, placement.z), Quaternion.identity);
+                    raycast.collider.gameObject.GetComponent<RoomControl>().doors.Add(newDir);
+                    raycast.collider.gameObject.GetComponent<RoomControl>().DestroyWalls();
+                    //currentRoom.DestroyWalls();
+                    //openRooms.Add(newRoom); rooms.Add(newRoom);
+                    Debug.Log("Added a door to existing un discovered room");
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
             //Debug.LogError("Already a room there dumbo :)");
-            return false;
             //raycast.collider.gameObject.GetComponent<RoomControl>().doors.Add(newDir);
         }
     }
@@ -127,9 +148,11 @@ public class RoomPlacement : MonoBehaviour
             for (int i = 0; i < num; i++)
             {
                 int place = Random.Range(0, 4);
-                while (currentRoom.doors.Contains(place))
+                int j = 0;
+                while (currentRoom.doors.Contains(place) && j < 2)
                 {
                     place = Random.Range(0, 4);
+                    j++;
                 }
                 if(SpawnDoors(place, currentRoom))
                 {
