@@ -48,7 +48,10 @@ public class RoomPlacement : MonoBehaviour
                 }
                 if(SpawnDoors(place, currentRoom))
                 {
-                    currentRoom.doors.Add(place);
+                    if(!currentRoom.doors.Contains(place))
+                    {
+                        currentRoom.doors.Add(place);
+                    }
                 }
                 else
                 {
@@ -58,6 +61,7 @@ public class RoomPlacement : MonoBehaviour
 
             openRooms.Remove(currentRoom.gameObject);
             currentRoom.GetComponent<RoomControl>().DestroyWalls();
+            currentRoom.GetComponent<RoomControl>().DisplayOnMiniMap();
         }
         
     }
@@ -103,7 +107,10 @@ public class RoomPlacement : MonoBehaviour
         {
             GameObject newDoor = GameObject.Instantiate(door, currentRoom.transform.position + new Vector3(width * placement.x * .5f, height * placement.y * .5f, -1), Quaternion.identity);
             GameObject newRoom = GameObject.Instantiate(room, currentRoom.transform.position + new Vector3(width * placement.x, height * placement.y, placement.z), Quaternion.identity);
-            newRoom.GetComponent<RoomControl>().doors.Add(newDir);
+            if(!newRoom.GetComponent<RoomControl>().doors.Contains(newDir))
+            {
+                newRoom.GetComponent<RoomControl>().doors.Add(newDir);
+            }
             newRoom.GetComponent<RoomControl>().DestroyWalls();
             //currentRoom.DestroyWalls();
             openRooms.Add(newRoom); rooms.Add(newRoom);
@@ -117,7 +124,10 @@ public class RoomPlacement : MonoBehaviour
                 {
                     GameObject newDoor = GameObject.Instantiate(door, currentRoom.transform.position + new Vector3(width * placement.x * .5f, height * placement.y * .5f, -1), Quaternion.identity);
                     //GameObject newRoom = GameObject.Instantiate(room, currentRoom.transform.position + new Vector3(width * placement.x, height * placement.y, placement.z), Quaternion.identity);
-                    raycast.collider.gameObject.GetComponent<RoomControl>().doors.Add(newDir);
+                    if(!raycast.collider.gameObject.GetComponent<RoomControl>().doors.Contains(newDir))
+                    {
+                        raycast.collider.gameObject.GetComponent<RoomControl>().doors.Add(newDir);
+                    }
                     raycast.collider.gameObject.GetComponent<RoomControl>().DestroyWalls();
                     //currentRoom.DestroyWalls();
                     //openRooms.Add(newRoom); rooms.Add(newRoom);
@@ -156,7 +166,10 @@ public class RoomPlacement : MonoBehaviour
                 }
                 if(SpawnDoors(place, currentRoom))
                 {
-                    currentRoom.doors.Add(place);
+                    if(!currentRoom.doors.Contains(place))
+                    {
+                        currentRoom.doors.Add(place);
+                    }
                 }
                 else
                 {
@@ -165,7 +178,9 @@ public class RoomPlacement : MonoBehaviour
             }
 
             openRooms.Remove(currentRoom.gameObject);
+            currentRoom.GetComponent<RoomControl>().PopulateRoom();
             currentRoom.GetComponent<RoomControl>().DestroyWalls();
+            currentRoom.GetComponent<RoomControl>().DisplayOnMiniMap();
             score.addRoom();
         }
         else
