@@ -52,7 +52,7 @@ public class RoomControl : MonoBehaviour
                 break;
         }
 
-        GameObject roomStuff = Instantiate(furnitureSets[0],transform.position - new Vector3 (0,0,0.5f),Quaternion.identity) as GameObject;
+        GameObject roomStuff = Instantiate(furnitureSets[Random.Range(0, furnitureSets.Length)],transform.position - new Vector3 (0,0,0.5f),Quaternion.identity) as GameObject;
 
         switch(doors.Count)
         {
