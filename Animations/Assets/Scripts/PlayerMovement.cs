@@ -7,6 +7,7 @@ public class PlayerMovement : MonoBehaviour
     public float inputX, inputY, speed, strafespeed, runspeed, acceleration, deceleration, currentSpeed;
     Rigidbody rb;
     bool running;
+    bool crouching;
     Animator anim;
 
     // Start is called before the first frame update
@@ -22,7 +23,7 @@ public class PlayerMovement : MonoBehaviour
         inputX = Input.GetAxis("Horizontal");
         inputY = Input.GetAxis("Vertical");
 
-        if(Input.GetKey(KeyCode.LeftShift))
+        if(Input.GetKey(KeyCode.LeftShift) && inputY > 0)
         {
             running = true;
             if(currentSpeed < runspeed)
@@ -46,6 +47,14 @@ public class PlayerMovement : MonoBehaviour
                 currentSpeed = speed;
             }
         }
+        if (Input.GetKey(KeyCode.LeftControl))
+        {
+            crouching = true;
+        }
+        else
+        {
+            crouching = false;
+        }
     }
 
     private void FixedUpdate()
@@ -53,5 +62,6 @@ public class PlayerMovement : MonoBehaviour
         rb.velocity = new Vector3(inputX * strafespeed, rb.velocity.y, inputY * currentSpeed);
         anim.SetFloat("VelX", rb.velocity.z/2f);
         anim.SetFloat("VelZ", rb.velocity.x);
+        anim.SetFloat("Crouch", crouching ? 1f : 0f);
     }
 }
