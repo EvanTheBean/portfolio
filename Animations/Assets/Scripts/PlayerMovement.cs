@@ -9,6 +9,7 @@ public class PlayerMovement : MonoBehaviour
     bool running;
     bool crouching;
     Animator anim;
+    public bool death;
 
     // Start is called before the first frame update
     void Start()
@@ -20,40 +21,52 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(death)
+        {
+            death = false ;
+        }
         inputX = Input.GetAxis("Horizontal");
         inputY = Input.GetAxis("Vertical");
 
-        if(Input.GetKey(KeyCode.LeftShift) && inputY > 0)
+        if(!death)
         {
-            running = true;
-            if(currentSpeed < runspeed)
+            if (Input.GetKey(KeyCode.LeftShift) && inputY > 0)
             {
-                currentSpeed += acceleration;
+                running = true;
+                if (currentSpeed < runspeed)
+                {
+                    currentSpeed += acceleration;
+                }
+                else
+                {
+                    currentSpeed = runspeed;
+                }
             }
             else
             {
-                currentSpeed = runspeed;
+                running = false;
+                if (currentSpeed > speed)
+                {
+                    currentSpeed -= deceleration;
+                }
+                else
+                {
+                    currentSpeed = speed;
+                }
             }
-        }
-        else
-        {
-            running = false;
-            if (currentSpeed > speed)
+            if (Input.GetKey(KeyCode.LeftControl))
             {
-                currentSpeed -= deceleration;
+                crouching = true;
             }
             else
             {
-                currentSpeed = speed;
+                crouching = false;
             }
         }
-        if (Input.GetKey(KeyCode.LeftControl))
+
+        if (Input.GetKey(KeyCode.K))
         {
-            crouching = true;
-        }
-        else
-        {
-            crouching = false;
+            death = true;
         }
     }
 
@@ -63,5 +76,6 @@ public class PlayerMovement : MonoBehaviour
         anim.SetFloat("VelX", rb.velocity.z/2f);
         anim.SetFloat("VelZ", rb.velocity.x);
         anim.SetFloat("Crouch", crouching ? 1f : 0f);
+        anim.SetBool("Die", death);
     }
 }
